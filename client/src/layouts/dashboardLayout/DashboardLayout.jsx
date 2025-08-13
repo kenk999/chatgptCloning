@@ -2,6 +2,7 @@ import { useAuth } from "@clerk/clerk-react";
 import "./dashboardLayout.css"
 import {Outlet, useNavigate} from "react-router-dom"
 import { useEffect } from "react";
+import ChatList from "../../components/ChatList";
 function DashboardLayout(){
 const {userId,isLoaded}=useAuth();
 const navigate=useNavigate()
@@ -12,8 +13,8 @@ navigate("/sign-in")
 },[isLoaded,userId,navigate])
     return(
         <div className="dashboardLayout">
-            <div className="menu">MENU</div>
-            <div className="contact">
+            <div className="menu"><ChatList /></div>
+            <div className="content">
                 <Outlet/>
             </div>
         </div>
