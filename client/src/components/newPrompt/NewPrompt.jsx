@@ -1,19 +1,45 @@
+import Upload from "../../upload/Upload";
 import "./newPrompt.css"
-import { useEffect,useRef } from "react";
+import { useEffect,useRef, useState } from "react";
+import model from "../../layouts/lib/gemini";
+function NewPrompt({ img, setImg }) {
+const  [question,setQuestion]= useState("")
 
-function NewPrompt() {
+
     const endRef=useRef(null);
+    
     useEffect(function (){
-endRef.current.scrollIntoView({"behavior":"smooth"});
-},[])
+        endRef.current.scrollIntoView({"behavior":"smooth"});
+    },[]);
+    
+    useEffect(function(){
+        console.log("Image state changed:", img);
+    }, [img]);
+
+    async function add(){
+     
+      try {
+        const prompt="write a story about an AI and magic"
+        console.log('Sending prompt:', prompt);
+        const result=await model.generateContent(prompt)
+        console.log('Result received:', result);
+        const response=await result.response
+        console.log('Response:', response);
+        const text = response.text()
+        console.log('Generated text:', text)
+      } catch (error) {
+        console.error('Error in add function:', error);
+      }
+    }
+
   return (
     <>
+    
       <div className="endChat"  ref={endRef}></div>
+      
       <div className="newPrompt">
         <form action="" className="newForm">
-          <label htmlFor="file">
-            <img src="/attachment.png" alt="Attach file" />
-          </label>
+          <Upload setImg={setImg}/>
           <input id="file" type="file" multiple={false} hidden />
           <input type="text" placeholder="Ask anything..." />
           <button>
