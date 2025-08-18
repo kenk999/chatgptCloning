@@ -1,55 +1,129 @@
+import { useEffect, useRef, useState } from "react";
+import "./newPrompt.css";
 import Upload from "../../upload/Upload";
-import "./newPrompt.css"
-import { useEffect,useRef, useState } from "react";
+import { IKImage } from "imagekitio-react";
 import model from "../../layouts/lib/gemini";
-function NewPrompt({ img, setImg }) {
-const  [question,setQuestion]= useState("")
+import Markdown from "react-markdown";
+
+const NewPrompt = ({ data }) => {
+  const [question, setQuestion] = useState("");
+  const [answer, setAnswer] = useState("");
+  const [img, setImg] = useState({
+    isLoading: false,
+    error: "",
+    dbData: {},
+    aiData: {},
+  });
+
+  const chat = model.startChat({
+    history: data?.history?.map(({ role, parts }) => ({
+      role,
+      parts: [{ text: parts[0].text }],
+    })) || [],
+    generationConfig: {
+      // maxOutputTokens: 100,
+    },
+  });
+
+  const endRef = useRef(null);
+  const formRef = useRef(null);
+
+  useEffect(() => {
+    endRef.current.scrollIntoView({ behavior: "smooth" });
+  }, [data, question, answer, img.dbData]);
+
+  const add = async (text, isInitial) => {
+    if (!isInitial) setQuestion(text);
+
+    try {
+      const result = await chat.sendMessageStream(
+        Object.entries(img.aiData).length ? [img.aiData, text] : [text]
+      );
+      let accumulatedText = "";
+      for await (const chunk of result.stream) {
+        const chunkText = chunk.text();
+        console.log(chunkText);
+        accumulatedText += chunkText;
+        setAnswer(accumulatedText);
+      }
+
+      // Reset image after sending
+      setImg({
+        isLoading: false,
+        error: "",
+        dbData: {},
+        aiData: {},
+      });
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    const text = e.target.text.value;
+    if (!text) return;
+
+    // Clear input immediately
+    e.target.text.value = '';
+
+    add(text, false);
 
 
-    const endRef=useRef(null);
-    
-    useEffect(function (){
-        endRef.current.scrollIntoView({"behavior":"smooth"});
-    },[]);
-    
-    useEffect(function(){
-        console.log("Image state changed:", img);
-    }, [img]);
+  };
 
-    async function add(){
-     
-      try {
-        const prompt="write a story about an AI and magic"
-        console.log('Sending prompt:', prompt);
-        const result=await model.generateContent(prompt)
-        console.log('Result received:', result);
-        const response=await result.response
-        console.log('Response:', response);
-        const text = response.text()
-        console.log('Generated text:', text)
-      } catch (error) {
-        console.error('Error in add function:', error);
+  // IN PRODUCTION WE DON'T NEED IT
+  const hasRun = useRef(false);
+
+  useEffect(() => {
+    if (!hasRun.current) {
+      if (data?.history?.length === 1) {
+        add(data.history[0].parts[0].text, true);
       }
     }
+    hasRun.current = true;
+  }, []);
 
   return (
     <>
-    
-      <div className="endChat"  ref={endRef}></div>
+      {/* ADD NEW CHAT */}
+      {img.isLoading && <div className="">Loading...</div>}
+      {img.dbData?.filePath && (
+        <div className="message user">
+          <IKImage
+            urlEndpoint={import.meta.env.VITE_IMAGE_KIT_ENDPOINT}
+            path={img.dbData?.filePath}
+            width="380"
+            transformation={[{ width: 380 }]}
+            style={{
+              maxWidth: "100%",
+              height: "auto",
+              borderRadius: "10px"
+            }}
+          />
+        </div>
+      )}
+      {question && <div className="message user">{question}</div>}
+      {answer && (
+        <div className="message">
+          <Markdown>{answer}</Markdown>
+        </div>
+      )}
+      <div className="endChat" ref={endRef}></div>
       
       <div className="newPrompt">
-        <form action="" className="newForm">
-          <Upload setImg={setImg}/>
+        <form className="newForm" onSubmit={handleSubmit} ref={formRef}>
+          <Upload setImg={setImg} />
           <input id="file" type="file" multiple={false} hidden />
-          <input type="text" placeholder="Ask anything..." />
+          <input type="text" name="text" placeholder="Ask anything..." />
           <button>
-            <img src="/arrow.png" alt="Send" />
+            <img src="/arrow.png" alt="" />
           </button>
         </form>
       </div>
-     
     </>
   );
-}
+};
 
-export default NewPrompt
+export default NewPrompt;
