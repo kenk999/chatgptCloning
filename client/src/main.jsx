@@ -10,6 +10,8 @@ import DashboardPage from './routes/dashboardPage/DashboardPage.jsx';
 import ChatPage from './routes/chatPage/ChatPage.jsx';
 import SignUpPage from './routes/signUpPage/SignUpPage.jsx';
 import SignInPage from './routes/signInPage/SignInPage.jsx';
+import ContactPage from './routes/contactPage/ContactPage.jsx';
+import ComingSoon from './routes/comingSoon/ComingSoon.jsx';
 
 
 
@@ -25,23 +27,27 @@ const router = createBrowserRouter([
         path: "/sign-in",
         element: <SignInPage />,
       },
-            {
+      {
         path: "/sign-up",
         element: <SignUpPage />,
-      }
-      ,{
-        element:<DashboardLayout/>
-        , children:[{
+      },
+      {
+        path: "/contact",
+        element: <ContactPage />,
+      },
+      {
+        path: "/coming-soon",
+        element: <ComingSoon />,
+      },
+      {
+        element:<DashboardLayout/>,
+        children:[{
           path:"/dashboard",
           element:<DashboardPage/>
         },{
-          path:"/dashboard/chats/",
-          element:<ChatPage/>
-        },{
           path:"/dashboard/chats/:id",
           element:<ChatPage/>
-        }
-        ]
+        }]
       }
     ]
   }

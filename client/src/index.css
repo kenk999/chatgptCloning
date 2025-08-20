@@ -4,6 +4,18 @@
     box-sizing:border-box;
 }
 
+/* Hide scrollbars but keep scrolling functionality */
+* {
+    /* For Webkit browsers (Chrome, Safari, Edge) */
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE and Edge */
+}
+
+/* Hide scrollbar for webkit browsers */
+*::-webkit-scrollbar {
+    display: none;
+}
+
 body {
     background-color:#0e0c16;
     color: #ececec;

@@ -2,9 +2,13 @@ import { Link } from "react-router-dom";
 import "./homepage.css";
 import { TypeAnimation } from "react-type-animation";
 import { useState } from "react";
+import { useAuth } from "@clerk/clerk-react";
 
 function Homepage() {
   const [typingStatus, setTypingStatus] = useState("User1");
+  const { getToken } = useAuth();
+  
+
 
   return (
     <div className="homepage">
@@ -17,6 +21,7 @@ function Homepage() {
           and overcome any obstacle.
         </h3>
         <Link to="/dashboard">Get Started</Link>
+        
       </div>
       <div className="right">
         <div className="imgContainer">
