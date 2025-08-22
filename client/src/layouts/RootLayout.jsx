@@ -33,7 +33,9 @@ function RootLayout() {
           </Link>
           <div className="user">
             <SignedOut>
-              <SignInButton />
+              <div className="signInWrapper">
+                <SignInButton />
+              </div>
             </SignedOut>
             <SignedIn>
               <UserButton />
